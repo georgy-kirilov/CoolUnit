@@ -8,7 +8,7 @@ import edu.coolunit.annotations.*;
 @TestClass
 public class PersonTests
 {
-	private String[] invalidNames = new String[]
+	public String[] invalidNames = new String[]
 	{
 		null,
 		"\n\t",
