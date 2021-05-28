@@ -84,11 +84,17 @@ public class Assert
 	
 	public static void isTrue(boolean condition)
 	{
-		throw new UnsupportedOperationException();
+		if(!condition)
+		{
+			throw new AssertFailException();	
+		}
 	}
 	
 	public static void isFalse(boolean condition)
 	{
-		throw new UnsupportedOperationException();
+		if(condition)
+		{
+			throw new AssertFailException();	
+		}
 	}
 }
