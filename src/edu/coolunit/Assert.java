@@ -24,7 +24,7 @@ public class Assert
 	
 	public static void areEqual(Object expected, Object actual)
 	{
-		if(expected == null)
+		if(expected == null && actual != null)
 		{
 			throw new AssertFailException();
 		}
