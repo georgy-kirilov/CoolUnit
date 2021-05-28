@@ -39,13 +39,47 @@ public class Assert
 	
 	public static void throwsException(Action action)
 	{
-		throw new UnsupportedOperationException();
+		try
+		{
+			action.invoke();
+			throw new AssertFailException();
+			
+		}
+		catch(Exception e)
+		{
+		}
+	}
+	
+	public static <T extends Exception> void throwsException(Class<T> exceptionType, Action action, boolean allowSubclasses)
+	{
+		try
+		{
+			action.invoke();
+			throw new AssertFailException();
+			
+		}
+		catch(Exception e)
+		{
+			if(allowSubclasses)
+			{
+				if(!e.getClass().isInstance(exceptionType))
+				{
+					throw new AssertFailException();
+				}
+			}
+			else
+			{
+				if(!e.getClass().equals(exceptionType.getClass()))
+				{
+					throw new AssertFailException();
+				}
+			}
+		}
 	}
 	
 	public static <T extends Exception> void throwsException(Class<T> exceptionType, Action action)
 	{
-		// TODO: Think about additional parameter that indicates whether the type of the exception should be considered a subclass (instance of) or should be compared directly to the given type
-		throw new UnsupportedOperationException();
+		throwsException(exceptionType, action, false);
 	}
 	
 	public static void isTrue(boolean condition)
