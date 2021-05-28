@@ -1,6 +1,5 @@
 package edu.coolunit;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -14,6 +13,7 @@ import edu.coolunit.annotations.ParamsProvider;
 import edu.coolunit.annotations.TestCase;
 import edu.coolunit.annotations.TestClass;
 import edu.coolunit.entities.TestClassResult;
+import edu.coolunit.exceptions.AssertFailException;
 import edu.coolunit.exceptions.MissingAnnotationException;
 
 public class CoolUnit
@@ -22,14 +22,14 @@ public class CoolUnit
 	{
 	}
 	
-	public static TestClassResult run(Class<?> type) throws NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException
+	public static TestClassResult run(Class<?> type) throws Throwable
 	{
 		if (type.getDeclaredAnnotation(TestClass.class) == null)
 		{
-			throw new MissingAnnotationException("TestClass annotation is missing from type " + type.getName());
+			throw new MissingAnnotationException(TestClass.class, type.getName());
 		}
 		
-		List<Method> methods = getTestCases(type);
+		List<Method> methods = getTestMethods(type);
 		
 		for (Method method : methods)
 		{
@@ -37,11 +37,12 @@ public class CoolUnit
 			
 			if (method.getParameterCount() > 0 && paramsProvider == null)
 			{
-				throw new MissingAnnotationException("Method accepts parameters but there is no ParamsProvider annotation attached to it");
+				throw new MissingAnnotationException(ParamsProvider.class, method.getName());
 			}
 			
 			Constructor<?> constructor = type.getConstructor();
 			Object instance = constructor.newInstance();
+			
 			Field field = type.getDeclaredField(paramsProvider.value());
 			
 			if (!field.getType().isArray())
@@ -53,14 +54,29 @@ public class CoolUnit
 		
 			for (Object paramsEntry : paramsEntries)
 			{
-				method.invoke(instance, paramsEntry);
+				try
+				{
+					method.invoke(instance, paramsEntry);
+					System.out.println("passed");
+				}
+				catch (InvocationTargetException e)
+				{
+					if (e.getTargetException().getClass().equals(AssertFailException.class))
+					{
+						System.out.println("failed");						
+					}
+					else
+					{
+						throw e.getTargetException();						
+					}
+				}
 			}
 		}
 		
 		return null;
 	}
 	
-	private static List<Method> getTestCases(Class<?> type)
+	private static List<Method> getTestMethods(Class<?> type)
 	{
 		return Arrays
 				.stream(type.getMethods())

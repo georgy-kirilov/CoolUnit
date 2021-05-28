@@ -4,6 +4,7 @@ import app.Text;
 import app.Person;
 import edu.coolunit.Assert;
 import edu.coolunit.annotations.*;
+import edu.coolunit.exceptions.MissingAnnotationException;
 
 @TestClass
 public class PersonTests
@@ -21,6 +22,6 @@ public class PersonTests
 	@ParamsProvider("invalidNames")
 	public void name_invalidValue_should_throwException(String name)
 	{
-		Assert.throwsException(() -> new Person(name, 5));
+		Assert.throwsException(IllegalArgumentException.class, () -> new Person(name, 5), false);
 	}
 }

@@ -1,5 +1,7 @@
 package edu.coolunit;
 
+import java.lang.reflect.InvocationTargetException;
+
 import edu.coolunit.entities.Action;
 import edu.coolunit.exceptions.AssertFailException;
 
@@ -41,13 +43,14 @@ public class Assert
 	{
 		try
 		{
-			action.invoke();
-			throw new AssertFailException();
-			
+			action.invoke();	
 		}
 		catch(Exception e)
 		{
+			return;
 		}
+		
+		throw new AssertFailException();
 	}
 	
 	public static <T extends Exception> void throwsException(Class<T> exceptionType, Action action, boolean allowSubclasses)
@@ -55,26 +58,30 @@ public class Assert
 		try
 		{
 			action.invoke();
-			throw new AssertFailException();
-			
 		}
-		catch(Exception e)
-		{
-			if(allowSubclasses)
+		catch (Exception e)
+		{	
+			if (allowSubclasses)
 			{
-				if(!e.getClass().isInstance(exceptionType))
+				if (!e.getClass().isInstance(exceptionType))
 				{
 					throw new AssertFailException();
 				}
+				
+				return;
 			}
 			else
 			{
-				if(!e.getClass().equals(exceptionType.getClass()))
+				if (!e.getClass().equals(exceptionType.getClass()))
 				{
 					throw new AssertFailException();
 				}
+				
+				return;
 			}
 		}
+		
+		throw new AssertFailException();
 	}
 	
 	public static <T extends Exception> void throwsException(Class<T> exceptionType, Action action)
