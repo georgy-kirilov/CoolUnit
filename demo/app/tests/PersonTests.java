@@ -17,7 +17,7 @@ public class PersonTests
 		Text.create('X', Person.NameMinLength - 1),
 	};
 	
-	@Test
+	@TestCase
 	@ParamsProvider("invalidNames")
 	public void name_invalidValue_should_throwException(String name)
 	{
