@@ -1,6 +1,7 @@
 package edu.coolunit;
 
 import edu.coolunit.entities.Action;
+import edu.coolunit.exceptions.AssertFailException;
 
 public class Assert
 {
@@ -13,12 +14,27 @@ public class Assert
 	
 	public static <T extends Comparable<T>> void areEqual(T expected, T actual)
 	{
-		throw new UnsupportedOperationException();
+		if(expected.compareTo(actual) != 0)
+		{
+			throw new AssertFailException();
+		}
+		
+		// TODO: throw appropriate exception when assert passes and catch it
 	}
 	
 	public static void areEqual(Object expected, Object actual)
 	{
-		throw new UnsupportedOperationException();
+		if(expected == null)
+		{
+			throw new AssertFailException();
+		}
+		
+		if(expected.equals(actual))
+		{
+			throw new AssertFailException();
+		}
+		
+		// TODO: throw appropriate exception when assert passes and catch it
 	}
 	
 	public static void throwsException(Action action)
