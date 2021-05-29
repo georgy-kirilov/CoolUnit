@@ -1,59 +1,39 @@
 package edu.coolunit;
 
-import java.lang.reflect.InvocationTargetException;
-
 import edu.coolunit.entities.Action;
 import edu.coolunit.exceptions.AssertFailException;
 
 public class Assert
 {
-	private Assert()
-	{
-	}
-	
-	// TODO: Implement all methods
-	// NOTE: To indicate that the assertion has failed, you need to throw new AssertFailException
-	
+	private Assert() { }
+		
 	public static <T extends Comparable<T>> void areEqual(T expected, T actual)
-	{
-		if(expected.compareTo(actual) != 0)
+	{	
+		if (expected != actual && expected != null && expected.compareTo(actual) != 0)
 		{
 			throw new AssertFailException();
 		}
-		
-		// TODO: throw appropriate exception when assert passes and catch it
 	}
 	
 	public static void areEqual(Object expected, Object actual)
 	{
-		if(expected == null && actual != null)
+		if (expected != actual && expected != null && expected.equals(actual))
 		{
 			throw new AssertFailException();
 		}
-		
-		if(expected.equals(actual))
-		{
-			throw new AssertFailException();
-		}
-		
-		// TODO: throw appropriate exception when assert passes and catch it
 	}
 	
-	public static void throwsException(Action action)
+	public static void exception(Action action)
 	{
-		try
-		{
-			action.invoke();	
-		}
-		catch(Exception e)
-		{
-			return;
-		}
-		
-		throw new AssertFailException();
+		exception(Exception.class, action, true);
 	}
 	
-	public static <T extends Exception> void throwsException(Class<T> exceptionType, Action action, boolean allowSubclasses)
+	public static <T extends Exception> void exception(Class<T> exceptionType, Action action)
+	{
+		exception(exceptionType, action, false);
+	}
+	
+	public static <T extends Exception> void exception(Class<T> exceptionType, Action action, boolean allowSubclasses)
 	{
 		try
 		{
@@ -61,22 +41,12 @@ public class Assert
 		}
 		catch (Exception e)
 		{	
-			if (allowSubclasses)
+			boolean correctExceptionType = allowSubclasses 
+					&& exceptionType.isAssignableFrom(e.getClass()) 
+					|| !allowSubclasses && e.getClass().equals(exceptionType);
+			
+			if (correctExceptionType)
 			{
-				if (!e.getClass().isInstance(exceptionType))
-				{
-					throw new AssertFailException();
-				}
-				
-				return;
-			}
-			else
-			{
-				if (!e.getClass().equals(exceptionType.getClass()))
-				{
-					throw new AssertFailException();
-				}
-				
 				return;
 			}
 		}
@@ -84,22 +54,17 @@ public class Assert
 		throw new AssertFailException();
 	}
 	
-	public static <T extends Exception> void throwsException(Class<T> exceptionType, Action action)
-	{
-		throwsException(exceptionType, action, false);
-	}
-	
 	public static void isTrue(boolean condition)
 	{
-		if(!condition)
+		if (!condition)
 		{
-			throw new AssertFailException();	
+			throw new AssertFailException();
 		}
 	}
 	
 	public static void isFalse(boolean condition)
 	{
-		if(condition)
+		if (condition)
 		{
 			throw new AssertFailException();	
 		}

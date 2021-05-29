@@ -63,7 +63,7 @@ public class CoolUnit
 				{
 					if (e.getTargetException().getClass().equals(AssertFailException.class))
 					{
-						System.out.println("failed");						
+						System.out.println("failed");		
 					}
 					else
 					{

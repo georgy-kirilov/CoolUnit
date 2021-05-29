@@ -2,9 +2,9 @@ package app.tests;
 
 import app.Text;
 import app.Person;
-import edu.coolunit.Assert;
 import edu.coolunit.annotations.*;
-import edu.coolunit.exceptions.MissingAnnotationException;
+
+import edu.coolunit.Assert;
 
 @TestClass
 public class PersonTests
@@ -22,6 +22,6 @@ public class PersonTests
 	@ParamsProvider("invalidNames")
 	public void name_invalidValue_should_throwException(String name)
 	{
-		Assert.throwsException(IllegalArgumentException.class, () -> new Person(name, 5), false);
+		Assert.exception(() -> new Person(name, 5));
 	}
 }
