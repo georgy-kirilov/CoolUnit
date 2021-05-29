@@ -19,9 +19,15 @@ public class PersonTests
 	};
 	
 	@TestCase
+	public void demo_test()
+	{
+		
+	}
+	@TestCase
 	@ParamsProvider("invalidNames")
 	public void name_invalidValue_should_throwException(String name)
 	{
 		Assert.exception(() -> new Person(name, 5));
+		Assert.isTrue(true, "marry() does not set correct value"); 
 	}
 }

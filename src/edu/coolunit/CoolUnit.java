@@ -14,6 +14,7 @@ import edu.coolunit.annotations.TestCase;
 import edu.coolunit.annotations.TestClass;
 import edu.coolunit.entities.TestClassResult;
 import edu.coolunit.exceptions.AssertFailException;
+import edu.coolunit.exceptions.InvalidFieldTypeException;
 import edu.coolunit.exceptions.MissingAnnotationException;
 
 public class CoolUnit
@@ -31,49 +32,76 @@ public class CoolUnit
 		
 		List<Method> methods = getTestMethods(type);
 		
+		Constructor<?> constructor = type.getConstructor();
+		Object instance = constructor.newInstance();
+		
 		for (Method method : methods)
 		{
+			System.out.println(method.getName());
+
+			if (method.getParameterCount() == 0)
+			{
+				handleTestMethod(method, instance, true, null);
+				continue;
+			}
+		
 			ParamsProvider paramsProvider = method.getAnnotation(ParamsProvider.class);
-			
-			if (method.getParameterCount() > 0 && paramsProvider == null)
+				
+			if (paramsProvider == null)
 			{
 				throw new MissingAnnotationException(ParamsProvider.class, method.getName());
 			}
-			
-			Constructor<?> constructor = type.getConstructor();
-			Object instance = constructor.newInstance();
 			
 			Field field = type.getDeclaredField(paramsProvider.value());
 			
 			if (!field.getType().isArray())
 			{
-				throw new IllegalStateException("Params provider field must be an array");
+				throw new InvalidFieldTypeException("Params provider field must be an array");
 			}
 			
 			Object[] paramsEntries = (Object[]) field.get(instance);
-		
+			
 			for (Object paramsEntry : paramsEntries)
 			{
-				try
-				{
-					method.invoke(instance, paramsEntry);
-					System.out.println("passed");
-				}
-				catch (InvocationTargetException e)
-				{
-					if (e.getTargetException().getClass().equals(AssertFailException.class))
-					{
-						System.out.println("failed");		
-					}
-					else
-					{
-						throw e.getTargetException();						
-					}
-				}
+				handleTestMethod(method, instance, false, paramsEntry);
 			}
 		}
 		
 		return null;
+	}
+	
+
+	public static List<TestClassResult> run(Class<?>... types)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	private static void handleTestMethod(Method method, Object instance, boolean parameterless, Object parameters) throws Throwable
+	{
+		try
+		{
+			if (parameterless)
+			{
+				method.invoke(instance);
+			}
+			else
+			{
+				method.invoke(instance, parameters);		
+			}
+			
+			System.out.println("passed");
+		}
+		catch (InvocationTargetException e)
+		{
+			if (e.getTargetException().getClass().isAssignableFrom(AssertFailException.class))
+			{
+				System.out.println("failed");
+			}
+			else
+			{
+				throw e.getTargetException();
+			}
+		}
 	}
 	
 	private static List<Method> getTestMethods(Class<?> type)
@@ -84,10 +112,5 @@ public class CoolUnit
 					&& Modifier.isPublic(m.getModifiers()) 
 					&& m.getReturnType().equals(Void.TYPE))
 				.collect(Collectors.toList());
-	}
-	
-	public static List<TestClassResult> run(Class<?>... types)
-	{
-		throw new UnsupportedOperationException();
 	}
 }

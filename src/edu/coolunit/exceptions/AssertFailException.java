@@ -7,4 +7,9 @@ public class AssertFailException extends RuntimeException
 	public AssertFailException()
 	{
 	}
+	
+	public AssertFailException(String message)
+	{
+		super(message);
+	}
 }
