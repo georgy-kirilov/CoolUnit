@@ -34,4 +34,14 @@ public class TestClassResult
 	{
 		testCaseResults.add(testCaseResult);
 	}
+	
+	public String toString()
+	{
+		StringBuilder sb = new StringBuilder();
+		for (TestCaseResult testCase : testCaseResults)
+		{
+			sb.append(testCase.toString() + "\n");
+		}
+		return sb.toString();
+	}
 }
